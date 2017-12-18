@@ -1,0 +1,12 @@
+; paint.net Palette File
+; Name: DawnBringer 8
+; by Richard "DawnBringer" Fhager
+; http://pixeljoint.com/forum/forum_posts.asp?TID=26050
+FF000000
+FF55415F
+FF646964
+FFD77355
+FF508CD7
+FF64B964
+FFE6C86E
+FFDCF5FF

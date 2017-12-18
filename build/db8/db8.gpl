@@ -1,0 +1,15 @@
+GIMP Palette
+Name: DawnBringer 8
+Columns: 8
+#
+# by Richard "DawnBringer" Fhager
+# http://pixeljoint.com/forum/forum_posts.asp?TID=26050
+#
+  0   0   0	Black
+ 85  65  95	Violet
+100 105 100	Gray
+215 115  85	Red
+ 80 140 215	Blue
+100 185 100	Green
+230 200 110	Yellow
+220 245 255	White
