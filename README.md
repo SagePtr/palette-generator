@@ -1,4 +1,4 @@
-#Palette-generator
+# Palette-generator
 
 Generates palette files in lot of formats.
 
