@@ -2,15 +2,19 @@ import os
 import glob
 import re
 import zlib
-from modules.generate_gpl import *
-from modules.generate_paintnet import *
-from modules.generate_csv import *
-from modules.generate_act import *
-from modules.generate_ase import *
-from modules.generate_png import *
-from modules.generate_unity import *
+from modules.generate_gpl import generate_gpl
+from modules.generate_jasc import generate_jasc
+from modules.generate_paintnet import generate_paintnet
+from modules.generate_csv import generate_csv
+from modules.generate_act import generate_act
+from modules.generate_aco import generate_aco
+from modules.generate_ase import generate_ase
+from modules.generate_png import generate_png
+from modules.generate_unity import generate_unity
 
-rootdir = os.path.normpath(os.path.join(os.path.dirname(__file__), '..'))
+ROOTDIR = os.path.normpath(os.path.join(os.path.dirname(__file__), '..'))
+INDIR = os.path.join(ROOTDIR, 'palettes')
+OUTDIR = os.path.join(ROOTDIR, 'build')
 
 def process_palette (filename):
     palette = {}
@@ -19,9 +23,9 @@ def process_palette (filename):
     palette['colors'] = []
     palette['columns'] = 8
     palette['comments'] = []
-    print ('Processing %s...' % palette['id'])
+    print ('Processing %s...' % filename)
     # Parse Gimp palette file
-    f = open(filename, 'r')
+    f = open(os.path.join(INDIR, filename), 'r')
     lines = f.read().splitlines()
     f.close()
     if lines[0] != 'GIMP Palette':
@@ -37,7 +41,7 @@ def process_palette (filename):
         m = re.match(r'#(.+)', line)
         if m:
             palette['comments'].append(m.group(1).strip())
-        m = re.match(r'\s*(\d{1,3})\s+(\d{1,3})\s+(\d{1,3})\s+([^#]+)', line)
+        m = re.match(r'\s*(\d{1,3})\s+(\d{1,3})\s+(\d{1,3})\s+(.*)', line)
         if m:
             color = []
             for t in xrange(1,4):
@@ -47,42 +51,51 @@ def process_palette (filename):
                 color.append(component)
             colorname = m.group(4).strip()
             if not colorname or colorname == 'Untitled':
-                colorname = '#%02x%02x%02x' % tuple(color)
+                colorname = '#%02X%02X%02X' % tuple(color)
             color.append(colorname)
             palette['colors'].append(color)
     print ('Parsed %s (%s, %d colors)' % (filename, palette['name'], len(palette['colors'])))
     # Create directory for output
-    outdir = rootdir + '/build/' + palette['id']
+    outdir = os.path.join(OUTDIR, os.path.dirname(filename), palette['id'])
+    print 'IN: %s, OUT: %s' % (filename, outdir)
     try:
         os.makedirs(outdir)
     except OSError:
         pass
     # Generate gpl
-    outfile = outdir + '/' + palette['id'] + '.gpl'
+    outfile = os.path.join(outdir, palette['id'] + '.gpl')
     generate_gpl(palette, outfile)
     print ('Generated ' + outfile)
     # Generate PNG
-    outfile = outdir + '/' + palette['id'] + '.png'
+    outfile = os.path.join(outdir, palette['id'] + '.png')
     generate_png(palette, outfile)
     print ('Generated ' + outfile)
+    # Generate JASC-PAL
+    outfile = os.path.join(outdir, palette['id'] + '.pal')
+    generate_jasc(palette, outfile)
+    print ('Generated ' + outfile)
     # Generate Paint.net
-    outfile = outdir + '/' + palette['id'] + '.txt'
+    outfile = os.path.join(outdir, palette['id'] + '.txt')
     generate_paintnet(palette, outfile)
     print ('Generated ' + outfile)
     # Generate CSV
-    outfile = outdir + '/' + palette['id'] + '.csv'
+    outfile = os.path.join(outdir, palette['id'] + '.csv')
     generate_csv(palette, outfile)
     print ('Generated ' + outfile)
-    # Generate Adobe color table
-    outfile = outdir + '/' + palette['id'] + '.act'
+    # Generate Adobe Color Table
+    outfile = os.path.join(outdir, palette['id'] + '.act')
     generate_act(palette, outfile)
     print ('Generated ' + outfile)
+    # Generate Adobe Color Swatches
+    outfile = os.path.join(outdir, palette['id'] + '.aco')
+    generate_aco(palette, outfile)
+    print ('Generated ' + outfile)
     # Generate Adobe Swatches for Exchange
-    outfile = outdir + '/' + palette['id'] + '.ase'
+    outfile = os.path.join(outdir, palette['id'] + '.ase')
     generate_ase(palette, outfile)
     print ('Generated ' + outfile)
     # Generate Unity assets
-    outfile = outdir + '/' + palette['id'] + '.colors'
+    outfile = os.path.join(outdir, palette['id'] + '.colors')
     generate_unity(palette, outfile)
     print ('Generated ' + outfile)
     
@@ -90,7 +103,7 @@ def process_palette (filename):
 
 
 # Scan palettes directory and build each palette
-print (rootdir + '/palettes/*.gpl')
-palettes = glob.glob(rootdir + '/palettes/*.gpl')
-for palette in palettes:
-    process_palette(palette)
+for dirname, dirs, files in os.walk(INDIR):
+    print '>',dirname
+    for filename in glob.glob(os.path.join(dirname, '*.gpl')):
+        process_palette (os.path.relpath(filename, INDIR))
