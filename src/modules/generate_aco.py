@@ -5,9 +5,9 @@
 from struct import pack
 
 def aco_color (color):
-    result = '\x00\x00' #RGB color space
-    result += ''.join(map(lambda x: chr(x)*2, color[:3]))
-    result += '\x00\x00'
+    result = b'\x00\x00' #RGB color space
+    result += b''.join(map(lambda x: pack('2B', x, x), color[:3]))
+    result += b'\x00\x00'
     return result
 
 #Same as asef_text, by length is four bytes    
@@ -25,13 +25,13 @@ def generate_aco (palette, filename):
     f = open(filename, 'wb')
 
     # Version 1
-    f.write('\x00\x01')
+    f.write(b'\x00\x01')
     f.write(pack('>H', len(palette['colors'])))
     # Colors (without text)
     for color in palette['colors']:
         f.write(aco_color(color))
     # Version 2
-    f.write('\x00\x02')
+    f.write(b'\x00\x02')
     f.write(pack('>H', len(palette['colors'])))
     # Colors (with text)
     for color in palette['colors']:

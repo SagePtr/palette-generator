@@ -23,14 +23,15 @@ def process_palette (filename):
     palette['colors'] = []
     palette['columns'] = 8
     palette['comments'] = []
-    print ('Processing %s...' % filename)
+    print ('Processing {}...'.format(filename))
+    
     # Parse Gimp palette file
     f = open(os.path.join(INDIR, filename), 'r')
     lines = f.read().splitlines()
     f.close()
     if lines[0] != 'GIMP Palette':
-        raise Exception('%s must be GIMP palette' % filename)
-    for i in xrange(1, len(lines)):
+        raise Exception('{} must be GIMP palette'.format(filename))
+    for i in range(1, len(lines)):
         line = lines[i]
         m = re.match(r'^Name: ([^#]+)', line)
         if m:
@@ -44,66 +45,75 @@ def process_palette (filename):
         m = re.match(r'\s*(\d{1,3})\s+(\d{1,3})\s+(\d{1,3})\s+(.*)', line)
         if m:
             color = []
-            for t in xrange(1,4):
+            for t in range(1,4):
                 component = int(m.group(t))
                 if component < 0 or component > 255:
-                    raise Exception('Invalid color: %s' % m.group(0))
+                    raise Exception('Invalid color: {}'.format(m.group(0)))
                 color.append(component)
             colorname = m.group(4).strip()
             if not colorname or colorname == 'Untitled':
-                colorname = '#%02X%02X%02X' % tuple(color)
+                colorname = '#{:02X}{:02X}{:02X}'.format(*color)
             color.append(colorname)
             palette['colors'].append(color)
-    print ('Parsed %s (%s, %d colors)' % (filename, palette['name'], len(palette['colors'])))
+    print ('Parsed {} ({}, {} colors)'.format(
+        filename, palette['name'], len(palette['colors'])))
+    
     # Create directory for output
     outdir = os.path.join(OUTDIR, os.path.dirname(filename), palette['id'])
-    print 'IN: %s, OUT: %s' % (filename, outdir)
+    print ('IN: {}, OUT: {}'.format(filename, outdir))
     try:
         os.makedirs(outdir)
     except OSError:
         pass
+    
     # Generate gpl
     outfile = os.path.join(outdir, palette['id'] + '.gpl')
     generate_gpl(palette, outfile)
     print ('Generated ' + outfile)
+    
     # Generate PNG
     outfile = os.path.join(outdir, palette['id'] + '.png')
     generate_png(palette, outfile)
     print ('Generated ' + outfile)
+    
     # Generate JASC-PAL
     outfile = os.path.join(outdir, palette['id'] + '.pal')
     generate_jasc(palette, outfile)
     print ('Generated ' + outfile)
+    
     # Generate Paint.net
     outfile = os.path.join(outdir, palette['id'] + '.txt')
     generate_paintnet(palette, outfile)
     print ('Generated ' + outfile)
+    
     # Generate CSV
     outfile = os.path.join(outdir, palette['id'] + '.csv')
     generate_csv(palette, outfile)
     print ('Generated ' + outfile)
+    
     # Generate Adobe Color Table
     outfile = os.path.join(outdir, palette['id'] + '.act')
     generate_act(palette, outfile)
     print ('Generated ' + outfile)
+    
     # Generate Adobe Color Swatches
     outfile = os.path.join(outdir, palette['id'] + '.aco')
     generate_aco(palette, outfile)
     print ('Generated ' + outfile)
+    
     # Generate Adobe Swatches for Exchange
     outfile = os.path.join(outdir, palette['id'] + '.ase')
     generate_ase(palette, outfile)
     print ('Generated ' + outfile)
+    
     # Generate Unity assets
     outfile = os.path.join(outdir, palette['id'] + '.colors')
     generate_unity(palette, outfile)
     print ('Generated ' + outfile)
-    
-    #print palette
 
 
 # Scan palettes directory and build each palette
 for dirname, dirs, files in os.walk(INDIR):
-    print '>',dirname
+    print ('>{}'.format(dirname))
     for filename in glob.glob(os.path.join(dirname, '*.gpl')):
         process_palette (os.path.relpath(filename, INDIR))

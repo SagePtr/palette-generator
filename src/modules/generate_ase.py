@@ -18,11 +18,11 @@ def asef_color (color):
     # Color name
     result = asef_text(color[3])
     # Colorspace
-    result += 'RGB '
+    result += b'RGB '
     # Components as float
     result += pack('>3f', *map(lambda x: x/255.0, color[:3]))
     # Color type (0=global,1=spot,2=normal)
-    result += '\x00\x00'
+    result += b'\x00\x00'
     
     return result
     
@@ -40,7 +40,7 @@ def generate_ase (palette, filename):
     f = open(filename, 'wb')
 
     # Header
-    f.write('ASEF\x00\x01\x00\x00')
+    f.write(b'ASEF\x00\x01\x00\x00')
     # Number of blocks (colors + 2 for group header/footer)
     f.write(pack('>L', len(palette['colors']) + 2))
     # Group header
@@ -49,6 +49,6 @@ def generate_ase (palette, filename):
     for color in palette['colors']:
         f.write(asef_chunk(0x00010000, asef_color(color)))
     # Group footer
-    f.write(asef_chunk(0xC0020000, ''))
+    f.write(asef_chunk(0xC0020000, b''))
         
     f.close()

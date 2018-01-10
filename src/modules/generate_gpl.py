@@ -3,18 +3,20 @@
 def generate_gpl (palette, filename):
     f = open(filename, 'w')
     
+    # Palette header
     f.write('GIMP Palette\n');
-    f.write('Name: ' + palette['name'] + '\n')
-    f.write('Columns: ' + str(palette['columns']) + '\n')
+    f.write('Name: {}\n'.format(palette['name']))
+    f.write('Columns: {}\n'.format(palette['columns']))
+    
+    # Comments (at least one blank comment)
     if len(palette['comments']) > 0:
         f.write('#\n')
         for line in palette['comments']:
-            f.write('# ' + line + '\n')
+            f.write('# {}\n'.format(line))
     f.write('#\n')
+    
+    # Colors
     for color in palette['colors']:
-        f.write(str(color[0]).rjust(3))
-        f.write(str(color[1]).rjust(4))
-        f.write(str(color[2]).rjust(4))
-        f.write('\t' + color[3] + '\n')
+        f.write('{:3}{:4}{:4}\t{}\n'.format(*color))
         
     f.close()

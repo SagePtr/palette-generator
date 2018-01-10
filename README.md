@@ -7,4 +7,4 @@ Inspired by [geoffb/dawnbringer-palettes](https://github.com/geoffb/dawnbringer-
 More code and README.md will be added later.
 
 ## Usage
-```python2 src/generate.py```
+```python src/generate.py```
