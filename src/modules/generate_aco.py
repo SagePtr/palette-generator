@@ -6,7 +6,7 @@ from struct import pack
 
 def aco_color (color):
     result = b'\x00\x00' #RGB color space
-    result += b''.join(map(lambda x: pack('2B', x, x), color[:3]))
+    result += b''.join(map(lambda x: pack('B', x)*2, color[:3]))
     result += b'\x00\x00'
     return result
 
